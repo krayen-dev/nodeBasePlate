@@ -1,0 +1,27 @@
+{
+    "name": "project-management-tool",
+    "version": "1.0.1",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "start": "nodemon server.js",
+        "dev": "concurrently --kill-others \"nodemon server.js\"  \"npx prisma studio\"",
+        "test": "npm test"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "axios": "^0.26.1",
+        "body-parser": "^1.20.0",
+        "concurrently": "^7.0.0",
+        "cors": "^2.8.5",
+        "dotenv": "^16.0.0",
+        "express": "^4.17.3",
+        "firebase-admin": "^10.3.0",
+        "jwt-decode": "^3.1.2",
+        "nodemon": "^1.19.4"
+    },
+    "devDependencies": {
+        "prettier": "^2.6.2"
+    }
+}
