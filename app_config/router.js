@@ -31,9 +31,10 @@ router.use(async function (req, res, next) {
 const user = require('../app/controllers/user');
 
 // Router for User
-router.post('/signup', user.signUp); // create user
+// router.post('/user', user.signUp); // create user
 router.post('/invite', user.inviteUser); // invite user
-router.get('/users', user.getUsersbyCustomer); // get users by customerId
+router.patch('/users', user.updateUser); // update user
+router.get('/users', user.getUsers); // get all users
 
 
 module.exports = router;

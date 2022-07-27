@@ -1,4 +1,5 @@
 const HttpStatus = require('http-status-codes');
+const randomString = require('randomstring');
 
 const userSVC = require('../services/userSVC');
 // const customerSVC = require('../services/customerSVC');
@@ -12,7 +13,7 @@ exports.inviteUser = async function (req, res) {
         // const uniqueUserId = decodedToken.user_id;
         // const userEmail = decodedToken.email;
         const { emailAddress, name, role } = req.body;
-        const customerId = decodedToken.customerId;
+        // const customerId = decodedToken.customerId;
         console.log('customer Id', customerId);
 
         const tempPassword = randomString.generate({
@@ -22,27 +23,12 @@ exports.inviteUser = async function (req, res) {
         const inviteUserResult = await utilsSVC.createFirebaseUser(
             emailAddress,
             tempPassword,
-            name
+            name,
+            role
         );
-
-        const updatedUserToken = await userSVC.updateUser(
-            inviteUserResult.uid,
-            customerId,
-            role,
-            name
-        );
-
-        const userDetails = {
-            displayName: name,
-            emailAddress: emailAddress,
-            uuId: inviteUserResult.uid,
-            role: role,
-            customerId: customerId,
-        };
-
-        const user = await userSVC.createUser(userDetails);
-
-        await utilsSVC.sendEmailInvite(emailAddress, tempPassword, name);
+        
+        // THE BELOW LINE WILL NOT WORK. WILL THROW AN ERROR WHEN EXECUTED. SO COMMENTED
+        // await utilsSVC.sendEmailInvite(emailAddress, tempPassword, name);
 
         res.status(HttpStatus.StatusCodes.CREATED).send({
             status: 'User invited successfully.',
@@ -56,23 +42,39 @@ exports.inviteUser = async function (req, res) {
     }
 };
 
-exports.getUsersbyCustomer = async function (req, res) {
-    try {
+exports.updateUser = async function (req, res){
+    try{
         const userToken = req.headers.authorization;
-
-        const { customerId } = await utilsSVC.jwtDecoder(userToken);
-
-        const users = await userSVC.getUsersbyCustomer(customerId);
-
+        const decodedToken = await utilsSVC.jwtDecoder(userToken);
+        const userId = decodedToken.user_id;
+        const userEmail = decodedToken.email;
+        const displayName = decodedToken.displayName;
+        const userRole = decodedToken.role;
+        const updateUser = await userSVC.updateUser(userId, userRole, displayName, userEmail);
         res.status(HttpStatus.StatusCodes.OK).send({
-            status: 'User Details Fetched Successfully',
-            data: users,
-        });
-    } catch (error) {
-        console.log(error.message);
+            status: 'User Updated Successfully',
+        })
+    }catch(error){
+        console.log(error);
         res.status(HttpStatus.StatusCodes.INTERNAL_SERVER_ERROR).send({
             success: false,
-            message: 'Internal Server Error',
-        });
+            message: 'Something went wrong. Please try again later!'
+        })
     }
 };
+
+exports.getUsers = async function(req, res){
+    try{
+        const getUsers = await userSVC.getAllusers();
+        res.status(HttpStatus.StatusCodes.OK).send({
+            status: 'Users fetched successfully',
+            data: getUsers
+        })
+    }catch(error){
+        console.log(error);
+        res.status(HttpStatus.StatusCodes.INTERNAL_SERVER_ERROR).send({
+            success: false,
+            message: 'Something went wrong. Please try again later!'
+        })
+    }
+}
